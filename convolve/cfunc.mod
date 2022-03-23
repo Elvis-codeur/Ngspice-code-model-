@@ -113,25 +113,34 @@ void convolve_1d(ARGS)
     size = PORT_SIZE(in);               /* Note that port size */
     kernel_size = PORT_SIZE(kernel);
 
-    /* Allowing memory to do the convolution */
-    double *convolve_data = malloc(sizeof(double)*kernel_size);
-
-    int x ;
-
-    /* Allowing memory to do have the previous data */
-    for(x = 0; x < kernel_size; x++)
+    if(computeur < kernel_size)
     {
-        cm_analog_alloc(TRUE,sizeof(double));
+        compteur ++;
+    }
+    else{
+        /* Allowing memory to do the convolution */
+        double *convolve_data = malloc(sizeof(double)*kernel_size);
+
+        int x ;
+
+        /* Allowing memory to do have the previous data */
+        for(x = 0; x < kernel_size; x++)
+        {
+            cm_analog_alloc(TRUE,sizeof(double));
+        }
+
+        /*Getting the previous data */
+        for(x = 0; x < kernel_size; x++)
+        {
+            convolve_data[i] = t2 = (double *) cm_analog_get_ptr(1,x);
+        }
+
+        if(ANALYSIS != MIF_AC) {                /* DC & Transient */         
+
+            OUTPUT(out) = convolve(convolve_data,&kernel,kernel_size);
+        }
+
     }
 
-    /* Allowing memory to do have the previous data */
-    for(x = 0; x < kernel_size; x++)
-    {
-        convolve_data[i] = t2 = (double *) cm_analog_get_ptr(1,x);
-    }
-
-    if(ANALYSIS != MIF_AC) {                /* DC & Transient */         
-
-        OUTPUT(out) = convolve(convolve_data,&kernel,kernel_size);
-    }
+    
 }
